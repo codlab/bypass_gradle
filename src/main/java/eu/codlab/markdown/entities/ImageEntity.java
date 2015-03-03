@@ -1,4 +1,4 @@
-package com.wopata.markdown.entities;
+package eu.codlab.markdown.entities;
 
 /**
  * Created by kevinleperf on 08/01/15.

@@ -12,7 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.koushikdutta.ion.Ion;
-import com.wopata.eove.R;
+import eu.codlab.markdown.R;
 import eu.codlab.markdown.entities.ImageEntity;
 import eu.codlab.markdown.entities.MarkDownEntity;
 import eu.codlab.markdown.entities.TextEntity;

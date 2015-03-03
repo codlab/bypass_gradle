@@ -1,4 +1,4 @@
-package com.wopata.markdown;
+package eu.codlab.markdown;
 
 import android.util.Log;
 
