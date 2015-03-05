@@ -29,6 +29,9 @@ class SplitManager {
     private final static Pattern IMAGE_PATTERN = Pattern.compile(MATCH_IMAGE);
 
 
+    private final static String MATCH_XML_WITH_BG_COLOR = "rgb\\(([^,)]+),([^,)]+)\\)";
+    private final static Pattern COLOR_XML_WITH_BG_PATTERN = Pattern.compile(MATCH_XML_WITH_BG_COLOR);
+
     private final static String MATCH_XML_COLOR = "rgb\\(([^,)]+)\\)";
     private final static Pattern COLOR_XML_PATTERN = Pattern.compile(MATCH_XML_COLOR);
 
@@ -91,7 +94,7 @@ class SplitManager {
     }
 
     private ColorEntity unstackColor() {
-        if (_stack_of_color != null && _stack_of_color.size() == 0) {
+        if (_stack_of_color != null && _stack_of_color.size() > 0) {
             _stack_of_color.remove(0);
             if (_stack_of_color.size() > 0) {
                 return _stack_of_color.get(0);
@@ -125,7 +128,7 @@ class SplitManager {
             List<RawItem> result = new ArrayList<>();
             for (String split : splitted) {
 
-                Log.d("MarkdownView","having split : "+split);
+                Log.d("MarkdownView", "having split : " + split);
 
                 if (array_tmp != null && array_tmp.isFinish()) {
                     result.add(array_tmp);
@@ -133,30 +136,37 @@ class SplitManager {
                 }
 
                 if (matchArrayLine(split)) {
-                    if(tmp != null && tmp.length() > 0) {
+                    if (tmp != null && tmp.length() > 0) {
                         result.add(new StringItem(tmp));
-                        tmp = "";
+                        tmp = "\n";
                     }
                     if (array_tmp == null) {
-                        Log.d("MarkdownView","starting array");
+                        Log.d("MarkdownView", "starting array");
                         array_tmp = new ArrayItem();
                         array_tmp.setHeader(split);
                     } else if (array_tmp.isInHeader()) {
-                        Log.d("MarkdownView","starting array body");
+                        Log.d("MarkdownView", "starting array body");
                         array_tmp.setIsHeaderForThisRow();
                     } else {//if(array_tmp.isInBody()){
-                        Log.d("MarkdownView","finish array");
+                        Log.d("MarkdownView", "finish array");
                         array_tmp.flushRow();
                         //if we are already in the body, it is the end
                         result.add(array_tmp);
+                        tmp+="\n";
                         array_tmp = null;
                     }
                 } else if (matchEmptyString(split) && array_tmp != null) {
                     //in case we are in an array WITH an empty string
                     //it is a new row
                     array_tmp.flushRow();
-                } else if (matchColor(split)) {
+                } else if (matchEndColor(split)) {
                     StringItem item_tmp = new StringItem(tmp);
+                    StringItem item_split = new StringItem(split);
+                    result.add(item_tmp);
+                    result.add(item_split);
+                    tmp = " \n";
+                } else if (matchColor(split)) {
+                    StringItem item_tmp = new StringItem(tmp+"\n\n");
                     StringItem item_split = new StringItem(split);
                     result.add(item_tmp);
                     result.add(item_split);
@@ -164,10 +174,11 @@ class SplitManager {
                 } else if (matchImage(split)) {
                     result.add(new StringItem(tmp));
                     result.add(new StringItem(split));
-                    tmp = "";
+                    tmp = "\n";
                 } else if (array_tmp != null) {
                     array_tmp.appendString(split);
                 } else {
+                    Log.d("MarkdownView", " set '" + split + "' to " + tmp);
                     tmp += split + "\n";
                 }
             }
@@ -185,11 +196,27 @@ class SplitManager {
         return null;
     }
 
+    private String sanitizeCarrierReturn(String string) {
+        if (string.endsWith("\n")) {
+            Log.d("MarkdownView", "removing from " + string + " > \\n");
+            return string.substring(0, string.length() - 2);
+        }
+        return string;
+    }
+
+    private boolean matchEndColor(String text_to_test) {
+        Matcher end_matcher = COLOR_END_PATTERN.matcher(text_to_test);
+        return end_matcher.matches();
+    }
+
+
     private boolean matchColor(String text_to_test) {
         Matcher matcher = COLOR_PATTERN.matcher(text_to_test);
         Matcher xml_matcher = COLOR_XML_PATTERN.matcher(text_to_test);
-        Matcher end_matcher = COLOR_END_PATTERN.matcher(text_to_test);
-        return matcher.matches() || end_matcher.matches() || xml_matcher.matches();
+        Matcher bg_matcher = COLOR_WITH_BG_PATTERN.matcher(text_to_test);
+        Matcher bg_xml_matcher = COLOR_XML_WITH_BG_PATTERN.matcher(text_to_test);
+        return matcher.matches() || xml_matcher.matches()
+                || bg_matcher.matches() || bg_xml_matcher.matches();
     }
 
     private boolean matchImage(String text_to_test) {
@@ -219,6 +246,7 @@ class SplitManager {
 
         Matcher color_matcher = COLOR_PATTERN.matcher(text_to_test);
         Matcher color_bg_matcher = COLOR_WITH_BG_PATTERN.matcher(text_to_test);
+        Matcher color_xml_bg_matcher = COLOR_XML_WITH_BG_PATTERN.matcher(text_to_test);
         Matcher color_xml_matcher = COLOR_XML_PATTERN.matcher(text_to_test);
         Matcher color_end_matcher = COLOR_END_PATTERN.matcher(text_to_test);
 
@@ -237,13 +265,16 @@ class SplitManager {
                 String b = color_matcher.group(3);
                 color = new ColorEntity(r, g, b);
             } else if (color_bg_matcher.matches() && color_bg_matcher.groupCount() >= 1) {
-                String r = color_matcher.group(1);
-                String g = color_matcher.group(2);
-                String b = color_matcher.group(3);
-                String br = color_matcher.group(4);
-                String bg = color_matcher.group(5);
-                String bb = color_matcher.group(6);
+                String r = color_bg_matcher.group(1);
+                String g = color_bg_matcher.group(2);
+                String b = color_bg_matcher.group(3);
+                String br = color_bg_matcher.group(4);
+                String bg = color_bg_matcher.group(5);
+                String bb = color_bg_matcher.group(6);
                 color = new ColorEntity(r, g, b, br, bg, bb);
+            } else if (color_xml_bg_matcher.matches() && color_xml_bg_matcher.groupCount() >= 1) {
+                color = new ColorEntity(color_xml_bg_matcher.group(1),
+                        color_xml_bg_matcher.group(2));
             } else if (color_xml_matcher.matches() && color_xml_matcher.groupCount() >= 1) {
                 color = new ColorEntity(color_xml_matcher.group(1));
             }
@@ -264,6 +295,11 @@ class SplitManager {
     private MarkDownEntity getText(String text_to_entity) {
         Bypass bypass = new Bypass();
         CharSequence string = bypass.markdownToSpannable(text_to_entity);
+        Log.d("MarkdownView", "create string : " + string.toString());
+
+        if (string.length() > 2 && string.charAt(string.length() - 1) == '\n') {
+            return new TextEntity(string.subSequence(0, string.length() - 2));
+        }
         return new TextEntity(string);
     }
 

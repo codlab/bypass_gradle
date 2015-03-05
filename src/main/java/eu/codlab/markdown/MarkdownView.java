@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,8 @@ public class MarkdownView extends LinearLayout {
     private int _md_array_body_color;
     private int _md_text_color;
     private int _md_cell_padding;
+    private int _md_padding_left;
+    private int _md_padding_right;
 
     private int _last_color;
     private int _last_background_color;
@@ -56,6 +59,8 @@ public class MarkdownView extends LinearLayout {
             _md_text_color = theAttrs.getColor(R.styleable.MarkdownView_md_text_color, Color.BLACK);
             _md_array_spacing = (int) theAttrs.getDimension(R.styleable.MarkdownView_md_array_spacing, 1);
             _md_cell_padding = (int) theAttrs.getDimension(R.styleable.MarkdownView_md_cell_padding, 5);
+            _md_padding_left = (int) theAttrs.getDimension(R.styleable.MarkdownView_md_padding_left, 0);
+            _md_padding_right = (int) theAttrs.getDimension(R.styleable.MarkdownView_md_padding_right, 0);
 
             _last_color = _md_text_color;
             _last_background_color = Color.TRANSPARENT;
@@ -66,6 +71,7 @@ public class MarkdownView extends LinearLayout {
             _md_text_color = Color.BLACK;
             _md_array_spacing = 1;
             _md_cell_padding = 5;
+            _md_padding_left = _md_padding_right = 0;
 
             _last_color = Color.BLACK;
             _last_background_color = Color.TRANSPARENT;
@@ -133,15 +139,17 @@ public class MarkdownView extends LinearLayout {
 
     private void addTextEntityInLayout(TextEntity entity) {
         TextView view = new TextView(getContext());
-        /*if(_last_background_color != Color.TRANSPARENT) {
-            view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT));
-        }else*/{
+        if(_last_background_color != Color.TRANSPARENT) {
             view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+        }else{
+            Log.d("MarkdownView", "having wrap for "+entity.getString());
+            view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT));
         }
         view.setTextColor(_last_color);//getContext().getResources().getColor(R.color.black));
         view.setBackgroundColor(_last_background_color);
+        view.setPadding(_md_padding_left, 0, _md_padding_right, 0);
         view.setText(entity.getString());
 
         view.setClickable(true);

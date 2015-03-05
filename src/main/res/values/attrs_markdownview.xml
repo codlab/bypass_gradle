@@ -6,5 +6,7 @@
         <attr name="md_text_color" format="color" />
         <attr name="md_array_spacing" format="dimension" />
         <attr name="md_cell_padding" format="dimension" />
+        <attr name="md_padding_left" format="dimension" />
+        <attr name="md_padding_right" format="dimension" />
     </declare-styleable>
 </resources>

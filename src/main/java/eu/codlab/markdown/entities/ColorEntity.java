@@ -9,7 +9,7 @@ import java.util.HashMap;
  */
 public class ColorEntity extends MarkDownEntity {
     private final static int DEFAULT_COLOR = 0xFFFFFFFF;
-    private final static int DEFAULT_COLOR_WHITE = 0xFFFFFF;
+    private final static int DEFAULT_COLOR_WHITE = Color.TRANSPARENT;
 
     private final static HashMap<String, Integer> _color_map = new HashMap<>();
 
