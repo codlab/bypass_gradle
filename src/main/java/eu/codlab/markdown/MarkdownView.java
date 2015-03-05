@@ -1,58 +1,87 @@
 package eu.codlab.markdown;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.List;
+
+import eu.codlab.markdown.entities.ArrayEntity;
 import eu.codlab.markdown.entities.ColorEntity;
 import eu.codlab.markdown.entities.ImageEntity;
 import eu.codlab.markdown.entities.MarkDownEntity;
 import eu.codlab.markdown.entities.TextEntity;
-
-import java.util.List;
+import eu.codlab.markdown.ui.AutoGridView;
+import eu.codlab.markdown.ui.AutoMeasureAdapter;
 
 /**
  * Created by kevinleperf on 08/01/15.
  */
 public class MarkdownView extends LinearLayout {
+    private int _md_array_spacing;
+    private int _md_array_header_color;
+    private int _md_array_body_color;
+    private int _md_text_color;
+    private int _md_cell_padding;
+
     private int _last_color;
 
     private Markdown _markdown_item;
     private List<MarkDownEntity> _entities;
     private ViewGroup _layout;
 
-    private void init() {
+    private void init(AttributeSet attributes) {
         _markdown_item = new Markdown(getContext());
         View main = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(R.layout.markdown_view, this, false);
         _layout = (ViewGroup) main.findViewById(R.id.markdown_area);
         addView(main);
-        _last_color = Color.BLACK;
+
+        if (attributes != null) {
+            TypedArray theAttrs = getContext().obtainStyledAttributes(attributes, R.styleable.MarkdownView);
+            _md_array_body_color = theAttrs.getColor(R.styleable.MarkdownView_md_array_body_color, Color.WHITE);
+            _md_array_header_color = theAttrs.getColor(R.styleable.MarkdownView_md_array_header_color, Color.LTGRAY);
+            _md_text_color = theAttrs.getColor(R.styleable.MarkdownView_md_text_color, Color.BLACK);
+            _md_array_spacing = (int) theAttrs.getDimension(R.styleable.MarkdownView_md_array_spacing, 1);
+            _md_cell_padding = (int) theAttrs.getDimension(R.styleable.MarkdownView_md_cell_padding, 5);
+
+            _last_color = _md_text_color;
+            theAttrs.recycle();
+        } else {
+            _md_array_body_color = Color.WHITE;
+            _md_array_header_color = Color.LTGRAY;
+            _md_text_color = Color.BLACK;
+            _md_array_spacing = 1;
+            _md_cell_padding = 5;
+
+            _last_color = Color.BLACK;
+        }
     }
 
     public MarkdownView(Context context) {
         super(context);
-        init();
+        init(null);
     }
 
     public MarkdownView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(attrs);
     }
 
     public MarkdownView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
+        init(attrs);
     }
 
     private void clear() {
@@ -82,14 +111,19 @@ public class MarkdownView extends LinearLayout {
                     addTextEntityInLayout((TextEntity) entity);
                 } else if (entity instanceof ColorEntity) {
                     addColorEntity((ColorEntity) entity);
+                } else if (entity instanceof ArrayEntity) {
+                    addArrayEntityInLayout((ArrayEntity) entity);
                 }
             }
         }
     }
 
     private void addColorEntity(ColorEntity entity) {
-        Log.d("MarkdownView","set color "+entity.getColorInteger());
-        _last_color = entity.getColorInteger();
+        if (!entity.isDefaultColor()) {
+            _last_color = entity.getColorInteger();
+        } else {
+            _last_color = _md_text_color;
+        }
     }
 
     private void addTextEntityInLayout(TextEntity entity) {
@@ -99,15 +133,31 @@ public class MarkdownView extends LinearLayout {
         view.setTextColor(_last_color);//getContext().getResources().getColor(R.color.black));
         view.setText(entity.getString());
 
-        Log.d("MarkdownView", "setText " + entity.getString().toString());
         view.setClickable(true);
         view.setLinksClickable(true);
         view.setMovementMethod(LinkMovementMethod.getInstance());
         _layout.addView(view);
     }
 
+    private void addArrayEntityInLayout(ArrayEntity entity) {
+
+        AutoGridView gridview = new AutoGridView(getContext());
+        gridview.setNumColumns(entity.getNumberColumns());
+        gridview.setLayoutParams(new AutoGridView.LayoutParams(LayoutParams.FILL_PARENT, Integer.MAX_VALUE >> 1));
+        gridview.setBackgroundColor(Color.BLACK);
+        gridview.setColumnWidth(GridView.AUTO_FIT);
+        gridview.setVerticalSpacing(_md_array_spacing);
+        gridview.setHorizontalSpacing(_md_array_spacing);
+        gridview.setPadding(_md_array_spacing, _md_array_spacing, _md_array_spacing, _md_array_spacing);
+        gridview.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);
+
+        AutoMeasureAdapter adapter = entity.createAdapter(getContext(), _last_color,
+                _md_array_header_color, _md_array_body_color, _md_cell_padding);
+        gridview.setAdapter(adapter);
+        _layout.addView(gridview);
+    }
+
     private void addImageEntityInLayout(ImageEntity entity) {
-        Log.d("MarkdownView", "setImage " + entity.getSrc());
         final ImageView view = new ImageView(getContext());
         view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
