@@ -1,5 +1,7 @@
 package eu.codlab.markdown;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -64,6 +66,7 @@ class SplitManager {
 
             MarkDownEntity tmp;
             for (RawItem split : splits) {
+                Log.d("MarkdownView", "having split type " + split.getClass().getSimpleName());
                 if (split instanceof StringItem) {
                     StringItem current = (StringItem) split;
 
@@ -119,18 +122,27 @@ class SplitManager {
             List<RawItem> result = new ArrayList<>();
             for (String split : splitted) {
 
+                Log.d("MarkdownView","having split : "+split);
+
                 if (array_tmp != null && array_tmp.isFinish()) {
                     result.add(array_tmp);
                     array_tmp = null;
                 }
 
                 if (matchArrayLine(split)) {
+                    if(tmp != null && tmp.length() > 0) {
+                        result.add(new StringItem(tmp));
+                        tmp = "";
+                    }
                     if (array_tmp == null) {
+                        Log.d("MarkdownView","starting array");
                         array_tmp = new ArrayItem();
                         array_tmp.setHeader(split);
                     } else if (array_tmp.isInHeader()) {
+                        Log.d("MarkdownView","starting array body");
                         array_tmp.setIsHeaderForThisRow();
                     } else {//if(array_tmp.isInBody()){
+                        Log.d("MarkdownView","finish array");
                         array_tmp.flushRow();
                         //if we are already in the body, it is the end
                         result.add(array_tmp);
