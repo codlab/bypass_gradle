@@ -9,6 +9,7 @@ import java.util.HashMap;
  */
 public class ColorEntity extends MarkDownEntity {
     private final static int DEFAULT_COLOR = 0xFFFFFFFF;
+    private final static int DEFAULT_COLOR_WHITE = 0xFFFFFF;
 
     private final static HashMap<String, Integer> _color_map = new HashMap<>();
 
@@ -32,11 +33,88 @@ public class ColorEntity extends MarkDownEntity {
     private int _g;
     private int _b;
 
-    private ColorEntity() {
+    private int _background_color;
+    private int _background_r;
+    private int _background_g;
+    private int _background_b;
 
+    private ColorEntity() {
+        _background_color = DEFAULT_COLOR_WHITE;
+        _background_b = _background_g = _background_r = -1;
     }
 
     public ColorEntity(String xml) {
+        this();
+        setXMLTextColor(xml);
+    }
+
+    public ColorEntity(String xml, String background_xml) {
+        this();
+        setXMLTextColor(xml);
+        setXMLBackgroundColor(background_xml);
+    }
+
+
+    public ColorEntity(String r, String g, String b, String br, String bg, String bb) {
+        this(Integer.parseInt(r),
+                Integer.parseInt(g),
+                Integer.parseInt(b),
+                Integer.parseInt(br),
+                Integer.parseInt(bg),
+                Integer.parseInt(bb));
+
+    }
+
+    public ColorEntity(String r, String g, String b) {
+        this(Integer.parseInt(r),
+                Integer.parseInt(g),
+                Integer.parseInt(b));
+    }
+
+
+    public ColorEntity(int r, int g, int b, int br, int bg, int bb) {
+        this();
+        _r = r % 256;
+        _g = g % 256;
+        _b = b % 256;
+        _color = DEFAULT_COLOR;
+
+        _background_r = br % 256;
+        _background_g = bg % 256;
+        _background_b = bb % 256;
+        _background_color = DEFAULT_COLOR_WHITE;
+    }
+
+    public ColorEntity(int r, int g, int b) {
+        this();
+        _r = r % 256;
+        _g = g % 256;
+        _b = b % 256;
+        _color = DEFAULT_COLOR;
+    }
+
+    private void setXMLBackgroundColor(String xml) {
+        try {
+            xml = xml.toLowerCase();
+            Integer color = _color_map.get(xml);
+            if (color != null) {
+                _background_color = color.intValue();
+            } else {
+                if (xml.indexOf("#") < 0) {
+                    _background_color = Color.parseColor("#" + xml);
+                } else {
+                    _background_color = Color.parseColor(xml);
+                }
+            }
+        } catch (Exception e) {
+            _background_color = Color.BLACK;
+        }
+        _background_r = -1;
+        _background_g = -1;
+        _background_b = -1;
+    }
+
+    private void setXMLTextColor(String xml) {
         try {
             xml = xml.toLowerCase();
             Integer color = _color_map.get(xml);
@@ -57,21 +135,6 @@ public class ColorEntity extends MarkDownEntity {
         _b = -1;
     }
 
-
-    public ColorEntity(String r, String g, String b) {
-        this(Integer.parseInt(r),
-                Integer.parseInt(g),
-                Integer.parseInt(b));
-    }
-
-
-    public ColorEntity(int r, int g, int b) {
-        _r = r % 256;
-        _g = g % 256;
-        _b = b % 256;
-        _color = DEFAULT_COLOR;
-    }
-
     public int getR() {
         return _r;
     }
@@ -82,6 +145,19 @@ public class ColorEntity extends MarkDownEntity {
 
     public int getB() {
         return _b;
+    }
+
+
+    public int getBackgroundR() {
+        return _background_r;
+    }
+
+    public int getBackgroundG() {
+        return _background_g;
+    }
+
+    public int getBackgroundB() {
+        return _background_b;
     }
 
 
@@ -99,5 +175,17 @@ public class ColorEntity extends MarkDownEntity {
 
     public static ColorEntity createDefaultColor() {
         return new ColorEntity(-1, -1, -1);
+    }
+
+    public boolean hasBackgroundColor() {
+        return (getBackgroundR() != -1 && getBackgroundG() != -1 && getBackgroundB() != -1) || _background_color != DEFAULT_COLOR_WHITE;
+    }
+
+    public int getBackgroundColorInteger() {
+        if (_background_color != DEFAULT_COLOR_WHITE) {
+            return _background_color;
+        }
+
+        return Color.rgb(getBackgroundR(), getBackgroundG(), getBackgroundB());
     }
 }

@@ -35,6 +35,9 @@ class SplitManager {
     private final static String MATCH_COLOR = "rgb\\(([0-9]+),([0-9]+),([0-9]+)\\)";
     private final static Pattern COLOR_PATTERN = Pattern.compile(MATCH_COLOR);
 
+    private final static String MATCH_COLOR_WITH_BG = "rgb\\(([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)\\)";
+    private final static Pattern COLOR_WITH_BG_PATTERN = Pattern.compile(MATCH_COLOR_WITH_BG);
+
     private final static String MATCH_END_COLOR = "!rgb";
     private final static Pattern COLOR_END_PATTERN = Pattern.compile(MATCH_END_COLOR);
 
@@ -215,6 +218,7 @@ class SplitManager {
                 IMAGE_PATTERN.matcher(text_to_test);
 
         Matcher color_matcher = COLOR_PATTERN.matcher(text_to_test);
+        Matcher color_bg_matcher = COLOR_WITH_BG_PATTERN.matcher(text_to_test);
         Matcher color_xml_matcher = COLOR_XML_PATTERN.matcher(text_to_test);
         Matcher color_end_matcher = COLOR_END_PATTERN.matcher(text_to_test);
 
@@ -232,6 +236,14 @@ class SplitManager {
                 String g = color_matcher.group(2);
                 String b = color_matcher.group(3);
                 color = new ColorEntity(r, g, b);
+            } else if (color_bg_matcher.matches() && color_bg_matcher.groupCount() >= 1) {
+                String r = color_matcher.group(1);
+                String g = color_matcher.group(2);
+                String b = color_matcher.group(3);
+                String br = color_matcher.group(4);
+                String bg = color_matcher.group(5);
+                String bb = color_matcher.group(6);
+                color = new ColorEntity(r, g, b, br, bg, bb);
             } else if (color_xml_matcher.matches() && color_xml_matcher.groupCount() >= 1) {
                 color = new ColorEntity(color_xml_matcher.group(1));
             }

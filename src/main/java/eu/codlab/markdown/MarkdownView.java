@@ -36,6 +36,7 @@ public class MarkdownView extends LinearLayout {
     private int _md_cell_padding;
 
     private int _last_color;
+    private int _last_background_color;
 
     private Markdown _markdown_item;
     private List<MarkDownEntity> _entities;
@@ -57,6 +58,7 @@ public class MarkdownView extends LinearLayout {
             _md_cell_padding = (int) theAttrs.getDimension(R.styleable.MarkdownView_md_cell_padding, 5);
 
             _last_color = _md_text_color;
+            _last_background_color = Color.TRANSPARENT;
             theAttrs.recycle();
         } else {
             _md_array_body_color = Color.WHITE;
@@ -66,6 +68,7 @@ public class MarkdownView extends LinearLayout {
             _md_cell_padding = 5;
 
             _last_color = Color.BLACK;
+            _last_background_color = Color.TRANSPARENT;
         }
     }
 
@@ -121,16 +124,24 @@ public class MarkdownView extends LinearLayout {
     private void addColorEntity(ColorEntity entity) {
         if (!entity.isDefaultColor()) {
             _last_color = entity.getColorInteger();
+            _last_background_color = entity.getBackgroundColorInteger();
         } else {
             _last_color = _md_text_color;
+            _last_background_color = Color.TRANSPARENT;
         }
     }
 
     private void addTextEntityInLayout(TextEntity entity) {
         TextView view = new TextView(getContext());
-        view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
+        /*if(_last_background_color != Color.TRANSPARENT) {
+            view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+        }else*/{
+            view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+        }
         view.setTextColor(_last_color);//getContext().getResources().getColor(R.color.black));
+        view.setBackgroundColor(_last_background_color);
         view.setText(entity.getString());
 
         view.setClickable(true);
