@@ -17,4 +17,9 @@ public class TextEntity extends MarkDownEntity {
     public CharSequence getString() {
         return _string;
     }
+
+    @Override
+    public boolean canManageNewLine() {
+        return true;
+    }
 }

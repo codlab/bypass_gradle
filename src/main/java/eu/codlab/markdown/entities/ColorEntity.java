@@ -56,19 +56,19 @@ public class ColorEntity extends MarkDownEntity {
 
 
     public ColorEntity(String r, String g, String b, String br, String bg, String bb) {
-        this(Integer.parseInt(r),
-                Integer.parseInt(g),
-                Integer.parseInt(b),
-                Integer.parseInt(br),
-                Integer.parseInt(bg),
-                Integer.parseInt(bb));
+        this(Integer.parseInt(r.trim()),
+                Integer.parseInt(g.trim()),
+                Integer.parseInt(b.trim()),
+                Integer.parseInt(br.trim()),
+                Integer.parseInt(bg.trim()),
+                Integer.parseInt(bb.trim()));
 
     }
 
     public ColorEntity(String r, String g, String b) {
-        this(Integer.parseInt(r),
-                Integer.parseInt(g),
-                Integer.parseInt(b));
+        this(Integer.parseInt(r.trim()),
+                Integer.parseInt(g.trim()),
+                Integer.parseInt(b.trim()));
     }
 
 
@@ -96,14 +96,14 @@ public class ColorEntity extends MarkDownEntity {
     private void setXMLBackgroundColor(String xml) {
         try {
             xml = xml.toLowerCase();
-            Integer color = _color_map.get(xml);
+            Integer color = _color_map.get(xml.trim());
             if (color != null) {
                 _background_color = color.intValue();
             } else {
                 if (xml.indexOf("#") < 0) {
-                    _background_color = Color.parseColor("#" + xml);
+                    _background_color = Color.parseColor("#" + xml.trim());
                 } else {
-                    _background_color = Color.parseColor(xml);
+                    _background_color = Color.parseColor(xml.trim());
                 }
             }
         } catch (Exception e) {
@@ -117,14 +117,14 @@ public class ColorEntity extends MarkDownEntity {
     private void setXMLTextColor(String xml) {
         try {
             xml = xml.toLowerCase();
-            Integer color = _color_map.get(xml);
+            Integer color = _color_map.get(xml.trim());
             if (color != null) {
                 _color = color.intValue();
             } else {
                 if (xml.indexOf("#") < 0) {
-                    _color = Color.parseColor("#" + xml);
+                    _color = Color.parseColor("#" + xml.trim());
                 } else {
-                    _color = Color.parseColor(xml);
+                    _color = Color.parseColor(xml.trim());
                 }
             }
         } catch (Exception e) {

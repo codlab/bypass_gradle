@@ -20,8 +20,6 @@ public class AutoGridView extends JazzyGridView {
     private int mPaddingBottom = 0;
     private int mPaddingTop = 0;
 
-
-    private static final String TAG = "AutoGridView";
     private int numColumnsID;
     private int previousFirstVisible;
     private int numColumns = 1;

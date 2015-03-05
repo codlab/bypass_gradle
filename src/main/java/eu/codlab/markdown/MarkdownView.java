@@ -5,7 +5,6 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -113,15 +112,28 @@ public class MarkdownView extends LinearLayout {
         _entities = entities;
 
         if (_entities != null) {
+            boolean last_required_new_line = false;
             for (MarkDownEntity entity : _entities) {
+                if(last_required_new_line){// && !entity.canManageNewLine()){
+                    //TODO append \n on next manageable
+                    addTextEntityInLayout(new TextEntity(" "));
+                    last_required_new_line = false;
+                }
+
                 if (entity instanceof ImageEntity) {
                     addImageEntityInLayout((ImageEntity) entity);
+                    last_required_new_line = true;
                 } else if (entity instanceof TextEntity) {
                     addTextEntityInLayout((TextEntity) entity);
+                    last_required_new_line = false;
                 } else if (entity instanceof ColorEntity) {
                     addColorEntity((ColorEntity) entity);
+                    if(((ColorEntity) entity).isDefaultColor()){
+                        last_required_new_line = true;
+                    }
                 } else if (entity instanceof ArrayEntity) {
                     addArrayEntityInLayout((ArrayEntity) entity);
+                    last_required_new_line = true;
                 }
             }
         }
@@ -143,7 +155,6 @@ public class MarkdownView extends LinearLayout {
             view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT));
         }else{
-            Log.d("MarkdownView", "having wrap for "+entity.getString());
             view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT));
         }

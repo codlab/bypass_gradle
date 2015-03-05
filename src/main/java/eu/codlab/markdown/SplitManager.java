@@ -1,7 +1,5 @@
 package eu.codlab.markdown;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -72,7 +70,6 @@ class SplitManager {
 
             MarkDownEntity tmp;
             for (RawItem split : splits) {
-                Log.d("MarkdownView", "having split type " + split.getClass().getSimpleName());
                 if (split instanceof StringItem) {
                     StringItem current = (StringItem) split;
 
@@ -127,9 +124,6 @@ class SplitManager {
 
             List<RawItem> result = new ArrayList<>();
             for (String split : splitted) {
-
-                Log.d("MarkdownView", "having split : " + split);
-
                 if (array_tmp != null && array_tmp.isFinish()) {
                     result.add(array_tmp);
                     array_tmp = null;
@@ -141,18 +135,15 @@ class SplitManager {
                         tmp = "\n";
                     }
                     if (array_tmp == null) {
-                        Log.d("MarkdownView", "starting array");
                         array_tmp = new ArrayItem();
                         array_tmp.setHeader(split);
                     } else if (array_tmp.isInHeader()) {
-                        Log.d("MarkdownView", "starting array body");
                         array_tmp.setIsHeaderForThisRow();
                     } else {//if(array_tmp.isInBody()){
-                        Log.d("MarkdownView", "finish array");
                         array_tmp.flushRow();
                         //if we are already in the body, it is the end
                         result.add(array_tmp);
-                        tmp+="\n";
+                        tmp += "\n";
                         array_tmp = null;
                     }
                 } else if (matchEmptyString(split) && array_tmp != null) {
@@ -166,7 +157,7 @@ class SplitManager {
                     result.add(item_split);
                     tmp = " \n";
                 } else if (matchColor(split)) {
-                    StringItem item_tmp = new StringItem(tmp+"\n\n");
+                    StringItem item_tmp = new StringItem(tmp + "\n\n");
                     StringItem item_split = new StringItem(split);
                     result.add(item_tmp);
                     result.add(item_split);
@@ -178,7 +169,6 @@ class SplitManager {
                 } else if (array_tmp != null) {
                     array_tmp.appendString(split);
                 } else {
-                    Log.d("MarkdownView", " set '" + split + "' to " + tmp);
                     tmp += split + "\n";
                 }
             }
@@ -194,14 +184,6 @@ class SplitManager {
             return concatenate(result);
         }
         return null;
-    }
-
-    private String sanitizeCarrierReturn(String string) {
-        if (string.endsWith("\n")) {
-            Log.d("MarkdownView", "removing from " + string + " > \\n");
-            return string.substring(0, string.length() - 2);
-        }
-        return string;
     }
 
     private boolean matchEndColor(String text_to_test) {
@@ -295,7 +277,6 @@ class SplitManager {
     private MarkDownEntity getText(String text_to_entity) {
         Bypass bypass = new Bypass();
         CharSequence string = bypass.markdownToSpannable(text_to_entity);
-        Log.d("MarkdownView", "create string : " + string.toString());
 
         if (string.length() > 2 && string.charAt(string.length() - 1) == '\n') {
             return new TextEntity(string.subSequence(0, string.length() - 2));

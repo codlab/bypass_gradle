@@ -53,7 +53,6 @@ public class ArrayEntity extends MarkDownEntity {
         List<String> columns = row.toColumns();
         //add every column in this row
         while (i < columns.size()) {
-            Log.d("ArrayEntity", "adding entity row/column : " + columns.get(i));
             content.add(columns.get(i));
             i++;
         }
