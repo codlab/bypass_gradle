@@ -10,9 +10,9 @@ This library is based on Bypass which is directly embedded in its source. Note t
 
 The library facilitate the Image loading via two different syntaxes which offer http/https loading and images from drawables :
 
->  ![Legend](url)
+    ![Legend](url)
 
->  ![Legend](drawable_name)
+    ![Legend](drawable_name)
 
 NOTE : currently, the legend is not used to render the image - fixes for assets loading is on-going
 
@@ -23,15 +23,15 @@ Header can be rendered by adding a second 'describing line'.
 
 i.e. :
 
---------  --------
-Column 1  Column 2
---------  --------
-Row 1     val 1
-
-          Row 2
-
-Row 3     !empty
---------  --------
+    --------  --------
+    Column 1  Column 2
+    --------  --------
+    Row 1     val 1
+    
+              Row 2
+    
+    Row 3     !empty
+    --------  --------
 
 
 # Customisation
