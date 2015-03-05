@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="MarkdownView">
+        <attr name="md_array_header_color" format="color" />
+        <attr name="md_array_body_color" format="color" />
+        <attr name="md_text_color" format="color" />
+        <attr name="md_array_spacing" format="dimension" />
+        <attr name="md_cell_padding" format="dimension" />
+    </declare-styleable>
+</resources>
