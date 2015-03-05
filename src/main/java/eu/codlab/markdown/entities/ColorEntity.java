@@ -1,15 +1,17 @@
 package eu.codlab.markdown.entities;
 
 import android.graphics.Color;
-import android.util.Log;
 
 import java.util.HashMap;
 
 /**
  * Created by kevinleperf on 08/01/15.
  */
-public class ColorEntity extends MarkDownEntity{
+public class ColorEntity extends MarkDownEntity {
+    private final static int DEFAULT_COLOR = 0xFFFFFFFF;
+
     private final static HashMap<String, Integer> _color_map = new HashMap<>();
+
     {
         _color_map.put("black", Color.BLACK);
         _color_map.put("dkgray", Color.DKGRAY);
@@ -30,11 +32,11 @@ public class ColorEntity extends MarkDownEntity{
     private int _g;
     private int _b;
 
-    private ColorEntity(){
+    private ColorEntity() {
 
     }
 
-    public ColorEntity(String xml){
+    public ColorEntity(String xml) {
         try {
             xml = xml.toLowerCase();
             Integer color = _color_map.get(xml);
@@ -47,8 +49,8 @@ public class ColorEntity extends MarkDownEntity{
                     _color = Color.parseColor(xml);
                 }
             }
-        }catch(Exception e){
-            _color =Color.BLACK;
+        } catch (Exception e) {
+            _color = Color.BLACK;
         }
         _r = -1;
         _g = -1;
@@ -56,38 +58,46 @@ public class ColorEntity extends MarkDownEntity{
     }
 
 
-    public ColorEntity(String r, String g, String b){
+    public ColorEntity(String r, String g, String b) {
         this(Integer.parseInt(r),
                 Integer.parseInt(g),
                 Integer.parseInt(b));
     }
 
 
-    public ColorEntity(int r, int g, int b){
+    public ColorEntity(int r, int g, int b) {
         _r = r % 256;
         _g = g % 256;
         _b = b % 256;
-        _color = 0xFFFFFFFF;
+        _color = DEFAULT_COLOR;
     }
 
-    public int getR(){
+    public int getR() {
         return _r;
     }
 
-    public int getG(){
+    public int getG() {
         return _g;
     }
 
-    public int getB(){
+    public int getB() {
         return _b;
     }
 
 
     public int getColorInteger() {
-        if(_color != 0xFFFFFFFF) {
+        if (_color != 0xFFFFFFFF) {
             return _color;
         }
 
         return Color.rgb(getR(), getG(), getB());
+    }
+
+    public boolean isDefaultColor() {
+        return getR() == -1 && getG() == -1 && getB() == -1 && _color == DEFAULT_COLOR;
+    }
+
+    public static ColorEntity createDefaultColor() {
+        return new ColorEntity(-1, -1, -1);
     }
 }
