@@ -3,6 +3,7 @@ package eu.codlab.markdown.ui;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListAdapter;
 
@@ -112,7 +113,8 @@ public class AutoGridView extends JazzyGridView {
         super.onScrollChanged(newHorizontal, newVertical, oldHorizontal, oldVertical);
     }
 
-    private void setHeights() {
+    private boolean setHeights() {
+        boolean calculated = hasCalculated;
         ListAdapter adapter = getAdapter();
 
         if (adapter != null) {
@@ -141,24 +143,23 @@ public class AutoGridView extends JazzyGridView {
                 hasCalculated = true;
             }
         }
+
+        if (!calculated) {
+            return hasCalculated;
+        }
+        return false;
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int heightSpec;
-
         setHeights();
-        if (getLayoutParams().height == LayoutParams.WRAP_CONTENT) {
-            heightSpec = MeasureSpec.makeMeasureSpec(
-                    Integer.MAX_VALUE >> 2, MeasureSpec.AT_MOST);
-            super.onMeasure(widthMeasureSpec, heightSpec);
-        } else {
-            heightSpec = heightMeasureSpec;
-            super.onMeasure(widthMeasureSpec, heightSpec);
+        heightSpec = MeasureSpec.makeMeasureSpec(Integer.MAX_VALUE >> 2, MeasureSpec.AT_MOST);
+        super.onMeasure(widthMeasureSpec, heightSpec);
 
-            if (hasCalculated) {
-                setMeasuredDimension(getMeasuredWidth(), getOverAllHeight());
-            }
+        if (hasCalculated) {
+            Log.d("Markdown", "has calculated " + getOverAllHeight());
+            setMeasuredDimension(getMeasuredWidth(), getOverAllHeight());
         }
     }
 
