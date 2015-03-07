@@ -5,9 +5,8 @@ import android.content.res.Configuration;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.widget.GridView;
 import android.widget.ListAdapter;
-
-import com.twotoasters.jazzylistview.JazzyGridView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.List;
 /**
  * Created by kevinleperf on 04/03/15.
  */
-public class AutoGridView extends JazzyGridView {
+public class AutoGridView extends GridView {
     private boolean hasCalculated = false;
     private List<Integer> _rows = new ArrayList<>();
     private int mPaddingBottom = 0;
