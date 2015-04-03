@@ -1,8 +1,10 @@
 package eu.codlab.markdown;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.net.Uri;
 import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -200,6 +202,23 @@ public class MarkdownView extends LinearLayout {
                 int resID = getResources().getIdentifier(entity.getSrc(), "drawable",
                         getContext().getPackageName());
                 view.setImageResource(resID);
+            }
+
+
+            try{
+                if(null != entity.getAlt() && entity.getAlt().startsWith("http")){
+                    final Uri uri = Uri.parse(entity.getAlt());
+                    view.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent i = new Intent(Intent.ACTION_VIEW);
+                            i.setData(uri);
+                            v.getContext().startActivity(i);
+                        }
+                    });
+                }
+            }catch(Exception exception){
+                exception.printStackTrace();
             }
 
         } catch (Exception e) {
