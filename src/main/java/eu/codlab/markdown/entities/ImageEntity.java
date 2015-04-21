@@ -1,5 +1,7 @@
 package eu.codlab.markdown.entities;
 
+import android.util.Log;
+
 /**
  * Created by kevinleperf on 08/01/15.
  */
@@ -8,7 +10,6 @@ public class ImageEntity extends MarkDownEntity{
     private String _src;
 
     private ImageEntity(){
-
     }
 
     public ImageEntity(String src, String alt){
@@ -29,6 +30,6 @@ public class ImageEntity extends MarkDownEntity{
     }
 
     public boolean isHttp(){
-        return _src != null && _src.indexOf("http") == 0;
+        return _src != null && _src.startsWith("http");
     }
 }

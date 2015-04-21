@@ -117,7 +117,7 @@ class SplitManager {
 
     private RawItem[] splitRaw() {
         if (_text_to_transform != null) {
-            String splitted[] = _text_to_transform.split("\n");
+            String splitted[] = _text_to_transform.split("\\r?\\n");
 
             String tmp = "";
             ArrayItem array_tmp = null;
@@ -223,8 +223,9 @@ class SplitManager {
      * @return a new markdownentity if the pattern is an image, null otherwise
      */
     private MarkDownEntity getSubTextImage(String text_to_test) {
-        Matcher matcher =
-                IMAGE_PATTERN.matcher(text_to_test);
+
+        //text_to_test = "![Clearfield Plus](dashboard_bg.png)";
+        Matcher matcher = IMAGE_PATTERN.matcher(text_to_test);
 
         Matcher color_matcher = COLOR_PATTERN.matcher(text_to_test);
         Matcher color_bg_matcher = COLOR_WITH_BG_PATTERN.matcher(text_to_test);

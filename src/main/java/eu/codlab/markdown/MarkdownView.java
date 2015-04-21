@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import eu.codlab.markdown.entities.ArrayEntity;
@@ -24,6 +26,8 @@ import eu.codlab.markdown.entities.ColorEntity;
 import eu.codlab.markdown.entities.ImageEntity;
 import eu.codlab.markdown.entities.MarkDownEntity;
 import eu.codlab.markdown.entities.TextEntity;
+import eu.codlab.markdown.enums.EventType;
+import eu.codlab.markdown.listeners.IMarkdownEntityEvent;
 import eu.codlab.markdown.ui.AutoGridView;
 import eu.codlab.markdown.ui.AutoMeasureAdapter;
 
@@ -44,6 +48,7 @@ public class MarkdownView extends LinearLayout {
 
     private Markdown _markdown_item;
     private List<MarkDownEntity> _entities;
+    private final List<IMarkdownEntityEvent> _listeners = new ArrayList<>();
     private ViewGroup _layout;
 
     private void init(AttributeSet attributes) {
@@ -108,6 +113,22 @@ public class MarkdownView extends LinearLayout {
         clear();
         List<MarkDownEntity> entities = _markdown_item.processAssetFile(asset);
         setContent(entities);
+    }
+
+    public void register(final IMarkdownEntityEvent listener) {
+        synchronized (_listeners) {
+            if (listener != null && !_listeners.contains(listener)) {
+                _listeners.add(listener);
+            }
+        }
+    }
+
+    public void unregister(IMarkdownEntityEvent listener) {
+        synchronized (_listeners) {
+            if (listener != null && _listeners.contains(listener)) {
+                _listeners.remove(listener);
+            }
+        }
     }
 
     private void setContent(List<MarkDownEntity> entities) {
@@ -189,10 +210,9 @@ public class MarkdownView extends LinearLayout {
         _layout.addView(gridview);
     }
 
-    private void addImageEntityInLayout(ImageEntity entity) {
+    private void addImageEntityInLayout(final ImageEntity entity) {
         final ImageView view = new ImageView(getContext());
-        view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
+        view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         try {
 
             _layout.addView(view);
@@ -204,22 +224,16 @@ public class MarkdownView extends LinearLayout {
                 view.setImageResource(resID);
             }
 
-
-            try{
-                if(null != entity.getAlt() && entity.getAlt().startsWith("http")){
-                    final Uri uri = Uri.parse(entity.getAlt());
-                    view.setOnClickListener(new OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent i = new Intent(Intent.ACTION_VIEW);
-                            i.setData(uri);
-                            v.getContext().startActivity(i);
+            view.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    synchronized (_listeners) {
+                        for (IMarkdownEntityEvent listener : _listeners) {
+                            listener.onEntityEvent(EventType.IMAGE, view, entity.getSrc());
                         }
-                    });
+                    }
                 }
-            }catch(Exception exception){
-                exception.printStackTrace();
-            }
+            });
 
         } catch (Exception e) {
             e.printStackTrace();
