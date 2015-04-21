@@ -12,8 +12,12 @@ public class ImageEntity extends MarkDownEntity{
     }
 
     public ImageEntity(String src, String alt){
-        _src= src;
+        _src = src.toLowerCase();
         _alt = alt;
+
+        if (!isHttp()) {
+            _src = _src.replaceAll("\\.\\w+", "");
+        }
     }
 
     public String getSrc(){
