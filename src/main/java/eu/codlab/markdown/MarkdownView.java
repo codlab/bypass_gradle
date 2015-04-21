@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,7 +110,7 @@ public class MarkdownView extends LinearLayout {
         setContent(entities);
     }
 
-    public void setAssetContent(String asset) {
+    public void setAssetContent(String asset) throws IOException {
         clear();
         List<MarkDownEntity> entities = _markdown_item.processAssetFile(asset);
         setContent(entities);
@@ -212,7 +213,8 @@ public class MarkdownView extends LinearLayout {
 
     private void addImageEntityInLayout(final ImageEntity entity) {
         final ImageView view = new ImageView(getContext());
-        view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        view.setScaleType(ImageView.ScaleType.FIT_START);
         try {
 
             _layout.addView(view);

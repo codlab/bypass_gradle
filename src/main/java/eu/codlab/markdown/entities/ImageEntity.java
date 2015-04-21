@@ -17,7 +17,7 @@ public class ImageEntity extends MarkDownEntity{
         _alt = alt;
 
         if (!isHttp()) {
-            _src = _src.replaceAll("\\.\\w+", "");
+            _src = _src.replaceAll("\\.\\w+", "").replace(" ", "_").replace("-", "_");
         }
     }
 

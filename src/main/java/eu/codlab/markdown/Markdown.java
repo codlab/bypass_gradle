@@ -37,7 +37,7 @@ public class Markdown {
         return null;
     }
 
-    public List<MarkDownEntity> processAssetFile(String file_path) {
+    public List<MarkDownEntity> processAssetFile(String file_path) throws IOException {
         try {
             InputStream is = _context.getAssets().open(file_path);
             byte[] bytes = new byte[is.available()];
