@@ -219,8 +219,7 @@ public class MarkdownView extends LinearLayout {
             if (entity.isHttp()) {
                 Picasso.with(getContext()).load(entity.getSrc()).into(view);
             } else {
-                int resID = getResources().getIdentifier(entity.getSrc(), "drawable",
-                        getContext().getPackageName());
+                int resID = getResources().getIdentifier(entity.getSrc(), "drawable", getContext().getPackageName());
                 view.setImageResource(resID);
             }
 
@@ -229,7 +228,7 @@ public class MarkdownView extends LinearLayout {
                 public void onClick(View v) {
                     synchronized (_listeners) {
                         for (IMarkdownEntityEvent listener : _listeners) {
-                            listener.onEntityEvent(EventType.IMAGE, view, entity.getSrc());
+                            listener.onEntityEvent(EventType.IMAGE, view, entity);
                         }
                     }
                 }

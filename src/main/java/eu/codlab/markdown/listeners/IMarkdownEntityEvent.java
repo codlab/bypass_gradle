@@ -2,6 +2,7 @@ package eu.codlab.markdown.listeners;
 
 import android.view.View;
 
+import eu.codlab.markdown.entities.MarkDownEntity;
 import eu.codlab.markdown.enums.EventType;
 
 /**
@@ -9,5 +10,5 @@ import eu.codlab.markdown.enums.EventType;
  */
 public interface IMarkdownEntityEvent {
 
-    void onEntityEvent(EventType type, View view, String link);
+    void onEntityEvent(EventType type, View view, MarkDownEntity entity);
 }
