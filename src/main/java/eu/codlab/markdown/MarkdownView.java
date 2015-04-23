@@ -225,16 +225,18 @@ public class MarkdownView extends LinearLayout {
                 view.setImageResource(resID);
             }
 
-            view.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    synchronized (_listeners) {
-                        for (IMarkdownEntityEvent listener : _listeners) {
-                            listener.onEntityEvent(EventType.IMAGE, view, entity);
+            if (entity.isClickable()) {
+                view.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        synchronized (_listeners) {
+                            for (IMarkdownEntityEvent listener : _listeners) {
+                                listener.onEntityEvent(EventType.IMAGE, view, entity);
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
 
         } catch (Exception e) {
             e.printStackTrace();

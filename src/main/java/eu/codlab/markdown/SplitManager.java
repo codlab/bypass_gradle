@@ -1,5 +1,7 @@
 package eu.codlab.markdown;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -20,34 +22,29 @@ import in.uncod.android.bypass.Bypass;
  * Created by kevinleperf on 08/01/15.
  */
 class SplitManager {
-    private List<ColorEntity> _stack_of_color;
     //TODO FIX THIS LOOK BEHIND STRUCTURE
     private final static String DELIMITER_IMAGE_WITH_DELIMITER = "(?=!\\[.+\\]\\(.+\\))|(?<=!\\[[a-zA-Z0-9]{0,30}\\]\\([a-zA-Z0-9]{0,50}\\)){50}+";
+    private final static String MATCH_NEW_LINE = "\\r?\\n$";
+    private final static Pattern MATCH_NEW_LINE_PATTERN = Pattern.compile(MATCH_NEW_LINE);
     private final static String MATCH_IMAGE = "!\\[(.+)\\]\\((.+)\\)";
+    private final static String MATCH_CLICKABLE_IMAGE = "\\[!\\[(.+)\\]\\((.+)\\)\\]\\((.+)\\)";
     private final static Pattern IMAGE_PATTERN = Pattern.compile(MATCH_IMAGE);
-
-
+    private final static Pattern CLICKABLE_IMAGE_PATTERN = Pattern.compile(MATCH_CLICKABLE_IMAGE);
     private final static String MATCH_XML_WITH_BG_COLOR = "rgb\\(([^,)]+),([^,)]+)\\)";
     private final static Pattern COLOR_XML_WITH_BG_PATTERN = Pattern.compile(MATCH_XML_WITH_BG_COLOR);
-
     private final static String MATCH_XML_COLOR = "rgb\\(([^,)]+)\\)";
     private final static Pattern COLOR_XML_PATTERN = Pattern.compile(MATCH_XML_COLOR);
-
     private final static String MATCH_COLOR = "rgb\\(([0-9]+),([0-9]+),([0-9]+)\\)";
     private final static Pattern COLOR_PATTERN = Pattern.compile(MATCH_COLOR);
-
     private final static String MATCH_COLOR_WITH_BG = "rgb\\(([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)\\)";
     private final static Pattern COLOR_WITH_BG_PATTERN = Pattern.compile(MATCH_COLOR_WITH_BG);
-
     private final static String MATCH_END_COLOR = "!rgb";
     private final static Pattern COLOR_END_PATTERN = Pattern.compile(MATCH_END_COLOR);
-
     private final static String MATCH_ARRAY_LINE = "[-]+([ ]+[-]+)";
     private final static Pattern ARRAY_LINE_PATTERN = Pattern.compile(MATCH_ARRAY_LINE);
-
     private final static String MATCH_EMPTY_LINE = "[\n\t]*";
     private final static Pattern EMPTY_LINE_PATTERN = Pattern.compile(MATCH_EMPTY_LINE);
-
+    private List<ColorEntity> _stack_of_color;
     private String _text_to_transform;
 
     public SplitManager() {
@@ -166,6 +163,10 @@ class SplitManager {
                     result.add(new StringItem(tmp));
                     result.add(new StringItem(split));
                     tmp = "\n";
+                } else if (matchClickableImage(split)) {
+                    result.add(new StringItem(tmp));
+                    result.add(new StringItem(split));
+                    tmp = "\n";
                 } else if (array_tmp != null) {
                     array_tmp.appendString(split);
                 } else {
@@ -206,6 +207,11 @@ class SplitManager {
         return matcher.matches();
     }
 
+    private boolean matchClickableImage(String text_to_test) {
+        Matcher matcher = CLICKABLE_IMAGE_PATTERN.matcher(text_to_test);
+        return matcher.matches();
+    }
+
     private boolean matchEmptyString(String text_to_test) {
         Matcher matcher = EMPTY_LINE_PATTERN.matcher(text_to_test);
         return matcher.matches();
@@ -224,8 +230,8 @@ class SplitManager {
      */
     private MarkDownEntity getSubTextImage(String text_to_test) {
 
-        //text_to_test = "![Clearfield Plus](dashboard_bg.png)";
-        Matcher matcher = IMAGE_PATTERN.matcher(text_to_test);
+        Matcher simpleMatcher = IMAGE_PATTERN.matcher(text_to_test);
+        Matcher clickableMatcher = CLICKABLE_IMAGE_PATTERN.matcher(text_to_test);
 
         Matcher color_matcher = COLOR_PATTERN.matcher(text_to_test);
         Matcher color_bg_matcher = COLOR_WITH_BG_PATTERN.matcher(text_to_test);
@@ -233,10 +239,17 @@ class SplitManager {
         Matcher color_xml_matcher = COLOR_XML_PATTERN.matcher(text_to_test);
         Matcher color_end_matcher = COLOR_END_PATTERN.matcher(text_to_test);
 
-        if (matcher.matches() && matcher.groupCount() > 1) {
-            String alt = matcher.group(1);
-            String src = matcher.group(2);
-            return new ImageEntity(src, alt);
+        Log.d("Markdown", "Clickable image matches("+text_to_test+") ? " + clickableMatcher.matches());
+
+        if (simpleMatcher.matches() && simpleMatcher.groupCount() > 1) {
+            String alt = simpleMatcher.group(1);
+            String src = simpleMatcher.group(2);
+            return new ImageEntity(src, alt, false);
+        } else if (clickableMatcher.matches() && clickableMatcher.groupCount() > 1) {
+            String alt = clickableMatcher.group(1);
+            String src = clickableMatcher.group(2);
+            String clickableContent = clickableMatcher.group(3);
+            return new ImageEntity(src, alt, true);
         } else if (color_end_matcher.matches()) {
             return unstackColor();
         } else {
@@ -279,7 +292,9 @@ class SplitManager {
         Bypass bypass = new Bypass();
         CharSequence string = bypass.markdownToSpannable(text_to_entity);
 
-        if (string.length() > 2 && string.charAt(string.length() - 1) == '\n') {
+        Matcher matcher = MATCH_NEW_LINE_PATTERN.matcher(string);
+
+        if (string.length() > 2 && matcher.matches()) {
             return new TextEntity(string.subSequence(0, string.length() - 2));
         }
         return new TextEntity(string);
