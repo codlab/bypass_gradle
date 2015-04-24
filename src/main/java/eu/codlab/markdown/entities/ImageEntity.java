@@ -8,14 +8,16 @@ import android.util.Log;
 public class ImageEntity extends MarkDownEntity{
     private String _alt;
     private String _src;
+    private String _clickableUrl;
     private boolean _clickable;
 
     private ImageEntity(){
     }
 
-    public ImageEntity(String src, String alt, boolean clickable){
+    public ImageEntity(String src, String alt, String clickableUrl, boolean clickable){
         _src = src.toLowerCase();
         _alt = alt;
+        _clickableUrl = clickableUrl;
         _clickable = clickable;
         if (!isHttp()) {
             _src = _src.replaceAll("\\.\\w+", "").replace(" ", "_").replace("-", "_");

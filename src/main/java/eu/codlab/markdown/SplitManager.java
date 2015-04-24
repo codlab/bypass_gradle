@@ -239,17 +239,15 @@ class SplitManager {
         Matcher color_xml_matcher = COLOR_XML_PATTERN.matcher(text_to_test);
         Matcher color_end_matcher = COLOR_END_PATTERN.matcher(text_to_test);
 
-        Log.d("Markdown", "Clickable image matches("+text_to_test+") ? " + clickableMatcher.matches());
-
         if (simpleMatcher.matches() && simpleMatcher.groupCount() > 1) {
             String alt = simpleMatcher.group(1);
             String src = simpleMatcher.group(2);
-            return new ImageEntity(src, alt, false);
+            return new ImageEntity(src, alt, null, false);
         } else if (clickableMatcher.matches() && clickableMatcher.groupCount() > 1) {
             String alt = clickableMatcher.group(1);
             String src = clickableMatcher.group(2);
             String clickableContent = clickableMatcher.group(3);
-            return new ImageEntity(src, alt, true);
+            return new ImageEntity(src, alt, clickableContent, true);
         } else if (color_end_matcher.matches()) {
             return unstackColor();
         } else {
