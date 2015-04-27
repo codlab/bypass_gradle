@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -213,8 +214,10 @@ public class MarkdownView extends LinearLayout {
 
     private void addImageEntityInLayout(final ImageEntity entity) {
         final ImageView view = new ImageView(getContext());
-        view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        view.setScaleType(ImageView.ScaleType.FIT_START);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.CENTER_HORIZONTAL;
+        view.setLayoutParams(params);
+        view.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         try {
 
             _layout.addView(view);
